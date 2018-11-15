@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Linkedin REACH</title>
+
+    <!-- Including Bootstrap for faster development -->
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename="style.css") }}">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    {{ moment.include_moment() }}
+</head>
+
+<body style="color: black;">
+    <main class="p-t">
+
+        <h1 class="text-center">
+            <img width="200px" height="auto" src="{{ url_for('static', filename="linkedin-logo.jpeg") }}" />
+            REACH
+        </h1>
+        <h3 class="text-center">
+            Word Guessing Game
+            <br/>
+            <small>
+                By Alex Harding
+            </small>
+        </h3>
+
+        <div class="">
+            <div class="col-sm-8 panel panel-border">
+                <h3 class="text-center">
+                    PLAY NOW
+                </h3>
+                <h5 class="p-x-md" style="line-height: 20px;">
+                    RULES
+                    <br/>
+                    - You have 6 chances at guessing the letters in the word
+                    <br/>
+                    - If you guess wrong, your chances will reduce and when it reaches 0 you will loose
+                    <br/>
+                    - If you guess right, all occurrences of the letter will appear in their right position.
+                    <br/>
+                    - The levels also represent the points you will earn if you win the game.
+                    <br/>
+                    - The dashes below represent the length of the word
+                    <br/>
+                    - GOOD LUCK!
+                </h5>
+
+                <h4 class="text-center">
+                    Difficulty
+                </h4>
+                <div class="text-center">
+                    {% for num in range(10) %}
+                        <a href="/?level={{ loop.index }}">
+                            <button class="{% if difficulty == loop.index %} buttons{% endif %}">
+                                level {{ loop.index }}
+                            </button>
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <h1 class="text-center">
+                    {% for i in range(length) %}
+                        <span id="{{ loop.index }}">
+                            -
+                        </span>
+                    {% endfor %}
+                </h1>
+
+                <div class="col-sm-4 col-sm-offset-4">
+                    <h4 class="text-center" id="username">
+                        Choose an existing or new username:
+                        <br/><br/>
+                        <input type="text" id="my-username" class="form-control input-border" />
+                        <b id="error" class="text-danger"></b>
+                        <br/>
+                        <button id="username-btn" class="center-block buttons btn-lg">
+                            continue
+                        </button>
+                    </h4>
+                    <h4 class="text-center hide" id="start">
+                        Start guessing <span id="new-username"></span>
+                        <br/><br/>
+                        Guesses Remaining - <span id="guess-count"></span>
+                        <br/><br/>
+                        Guessed letters
+                        <br/>
+                        <span id="guesses"></span>
+                        <br/><br/>
+                        <span id="result">
+                            <input maxlength="1" type="text" id="guess" class="form-control input-border" placeholder="You can guess 1 letter at a time" />
+                            <br/>
+                            <button id="guess-btn" class="center-block buttons btn-lg">
+                                guess
+                            </button>
+                        </span>
+                    </h4>
+                    <br/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel panel-border">
+                <h3 class="text-center">
+                    LEADER BOARD
+                </h3>
+                <table class="table text-center" id="leaderboard">
+                    <tr>
+                        <th class="text-center">
+                            User
+                        </th>
+                        <th class="text-center">
+                            Score
+                        </th>
+                        <th class="text-center">
+                            Last Played
+                        </th>
+                    </tr>
+                    {% for player in players %}
+                        <tr>
+                            <td>
+                                {{ player.username }}
+                            </td>
+                            <td>
+                                {{ player.score }}
+                            </td>
+                            <td>
+                                {{ moment(player.timestamp).fromNow() }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="text/javascript">
+        let guesses = 6;
+        let hangman = '{{ word }}';
+        let word_length = {{ occurrence_length }};
+        let shown = 0;
+        //Guessed Characters
+        let guessed_chars = '';
+        let key = '{{ key }}';
+        let level = '{{ difficulty }}';
+
+        $(document).on('click', '#username-btn', function () {
+            let input = $('#my-username');
+            let value = input.val();
+
+            if (value !== '') {
+                $('#new-username').html(value);
+                $('#start').removeClass('hide');
+                $('#username').addClass('hide');
+                $('#guess-count').html(guesses)
+            } else {
+                $('#error').html('Please choose a username');
+                setInterval( function () {
+                        $('#error').html('')
+                    }, 3000)
+            }
+        });
+
+        $(document).on('click', '#guess-btn', function () {
+            let guess = $('#guess');
+            let value = guess.val();
+            let result_block = $('#result');
+
+            if (value !== '') {
+                $.ajax({
+                    url: '/guess',
+                    type: 'GET',
+                    data: {'guessing': 'Yes', 'value': value,
+                        'hangman': hangman, 'key': key},
+
+                    success: function (resp) {
+
+                        if (resp !== 'no match') {
+                            //Convert response to array
+                            response = resp.split(',');
+
+                            //Iterate dashes and show letters
+                            for (i=0; i<response.length; i++) {
+                                if (response[i] !== '') {
+                                    $('#' + response[i]).html(value);
+
+                                    //Update shown letters count if not already shown
+                                    if (guessed_chars.indexOf(value) === -1) {
+                                        shown += 1;
+
+                                        //Update guessed chars
+                                        guessed_chars += value;
+
+                                        //Show Guessed letters
+                                        $('#guesses').append(
+                                            '<span class="text-success">' + value + ' ' + '</span>'
+                                        )
+
+                                    }
+                                }
+                            }
+
+                            if (shown === word_length) {
+                                $.ajax({
+                                    url: '/won',
+                                    type: 'GET',
+                                    data: {'username': $('#new-username').html(),
+                                    'level': level},
+
+                                    success: function (resp) {
+                                        if (resp === 'ok') {
+                                            //Let player know that they've won
+                                            result_block.html('');
+                                            result_block.append(
+                                                '<span class="text-success">' +
+                                                    'CONGRATULATIONS! YOU WON' +
+                                                '</span>' + '<br/>' +
+                                                '<small>' +
+                                                    'choose a level to play again' +
+                                                '</small>'
+                                            );
+
+                                            //Refresh Leaderboard
+                                            $('#leaderboard').load(document.URL + ' #leaderboard')
+
+                                        }
+                                    }
+                                });
+
+                            }
+
+                            //Empty Input field and focus
+                            guess.val('').focus();
+
+                        } else {
+                            //Subtract guess allowance
+                            guesses -= 1;
+
+                            $('#guess-count').html(guesses);
+                            if (guesses === 0 ) {
+                                result_block.html('');
+                                result_block.append(
+                                    '<span class="text-danger">' +
+                                        'GAME OVER' + '<br/>' + 'YOU LOST' +
+                                    '</span>' + '<br/>' +
+                                    '<small>' +
+                                        'choose a level to play again' +
+                                    '</small>'
+                                )
+                            }
+                            //Empty Input field and focus
+                            guess.val('').focus();
+
+                            //Show Guessed letters
+                            if (guessed_chars.indexOf(value) === -1) {
+                                $('#guesses').append(
+                                    '<span class="text-danger">' + value + ' ' + '</span>'
+                                )
+                            }
+                        }
+                    }
+                })
+            }
+        })
+    </script>
+</body>
+</html>
