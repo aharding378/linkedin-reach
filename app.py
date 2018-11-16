@@ -2,26 +2,6 @@
 #By Alex Harding
 #Created 11/14/18
 
-#Please copy and paste these commands in your terminal to get the app up and running.
-
-#TIP: Create a virtual environment before proceeding
-
-# 1. pip install -r requirements.txt
-# 2. export FLASK_APP=app.py
-# 3. export FLASK_ENV=development
-# 4. export FLASK_DEBUG=1
-
-#You will then need to create a database table
-# To do so, use an interactive python shell where you have this app loaded and type
-# 1. from app import db
-# 2. db.create_all()
-#This will create your new database
-
-# That's it! now type: "flask run" in your commandline
-#to start the application and go to http://127.0.0.1:5000/ in your browser to view the app
-
-#Hope you enjoy the game!
-
 from flask import Flask, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -90,36 +70,45 @@ def word_guessing():
         difficulty = '1'
 
     #Get words from linkedin url
-    url = "http://app.linkedin-reach.io/words?difficulty=" + difficulty
+    try:
+        url = "http://app.linkedin-reach.io/words?difficulty=" + difficulty
 
-    with urllib.request.urlopen(url) as response:
-        words = response.read()
+        with urllib.request.urlopen(url) as response:
+            words = response.read()
 
-    #Sonverts words into an array of words
-    words = str(words).split('\\n')
+        #Check if response fails - TODO
 
-    #pick a random word from the array
-    word = random.choice(words)
+        #Sonverts words into an array of words
+        words = str(words).split('\\n')
 
-    #Get length of word to display dashes
-    length = len(word)
+        #pick a random word from the array
+        word = random.choice(words)
 
-    #Get length of word recording multiple occurrences a 1
-    letters = ''
-    occurrence_length = 0
-    for letter in word:
-        if letter not in letters:
-            letters += letter
-            occurrence_length += 1
+        #Get length of word to display dashes
+        length = len(word)
 
-    #Get random encryption key
-    key = random.choice(keys)
+        #Get length of word recording multiple occurrences a 1
+        letters = ''
+        occurrence_length = 0
+        for letter in word:
+            if letter not in letters:
+                letters += letter
+                occurrence_length += 1
 
-    #Encrypt word
-    word = encrypt_word(word, key)
+        #Get random encryption key
+        key = random.choice(keys)
 
-    #change original key for frontend
-    key = key + 13
+        #Encrypt word
+        word = encrypt_word(word, key)
+
+        #change original key for frontend
+        key = key + 13
+    except:
+        word = None
+        key = None
+        occurrence_length = 0
+        length = 0
+
 
     #get players for leaderboard in descending order
     players = User.query.order_by(User.score.desc()).all()
@@ -128,7 +117,7 @@ def word_guessing():
                            occurrence_length=occurrence_length, key=key, players=players)
 
 
-@app.route('/guess', methods=['GET', 'POST'])
+@app.route('/guess', methods=['GET'])
 def guess():
     #Get request data
     word = request.args.get('hangman')
@@ -169,7 +158,7 @@ def guess():
     return 'ok'
 
 
-@app.route('/won', methods=['GET', 'POST'])
+@app.route('/won', methods=['GET'])
 def won():
 
     #get values from request

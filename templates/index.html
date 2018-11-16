@@ -14,9 +14,8 @@
     {{ moment.include_moment() }}
 </head>
 
-<body style="color: black;">
+<body>
     <main class="p-t">
-
         <h1 class="text-center">
             <img width="200px" height="auto" src="{{ url_for('static', filename="linkedin-logo.jpeg") }}" />
             REACH
@@ -29,12 +28,12 @@
             </small>
         </h3>
 
-        <div class="">
+        <div>
             <div class="col-sm-8 panel panel-border">
                 <h3 class="text-center">
                     PLAY NOW
                 </h3>
-                <h5 class="p-x-md" style="line-height: 20px;">
+                <h5 class="p-x-md rules-line-height">
                     RULES
                     <br/>
                     - You have 6 chances at guessing the letters in the word
@@ -49,58 +48,65 @@
                     <br/>
                     - GOOD LUCK!
                 </h5>
+                {% if word != None %}
 
-                <h4 class="text-center">
-                    Difficulty
-                </h4>
-                <div class="text-center">
-                    {% for num in range(10) %}
-                        <a href="/?level={{ loop.index }}">
-                            <button class="{% if difficulty == loop.index %} buttons{% endif %}">
-                                level {{ loop.index }}
-                            </button>
-                        </a>
-                    {% endfor %}
-                </div>
-
-                <h1 class="text-center">
-                    {% for i in range(length) %}
-                        <span id="{{ loop.index }}">
-                            -
-                        </span>
-                    {% endfor %}
-                </h1>
-
-                <div class="col-sm-4 col-sm-offset-4">
-                    <h4 class="text-center" id="username">
-                        Choose an existing or new username:
-                        <br/><br/>
-                        <input type="text" id="my-username" class="form-control input-border" />
-                        <b id="error" class="text-danger"></b>
-                        <br/>
-                        <button id="username-btn" class="center-block buttons btn-lg">
-                            continue
-                        </button>
+                    <h4 class="text-center">
+                        Difficulty
                     </h4>
-                    <h4 class="text-center hide" id="start">
-                        Start guessing <span id="new-username"></span>
-                        <br/><br/>
-                        Guesses Remaining - <span id="guess-count"></span>
-                        <br/><br/>
-                        Guessed letters
-                        <br/>
-                        <span id="guesses"></span>
-                        <br/><br/>
-                        <span id="result">
-                            <input maxlength="1" type="text" id="guess" class="form-control input-border" placeholder="You can guess 1 letter at a time" />
+                    <div class="text-center">
+                        {% for num in range(10) %}
+                            <a href="/?level={{ loop.index }}">
+                                <button class="{% if difficulty == loop.index %} buttons{% endif %}">
+                                    level {{ loop.index }}
+                                </button>
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <h1 class="text-center">
+                        {% for i in range(length) %}
+                            <span id="{{ loop.index }}">
+                                -
+                            </span>
+                        {% endfor %}
+                    </h1>
+
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <h4 class="text-center" id="username">
+                            Choose an existing or new username:
+                            <br/><br/>
+                            <input type="text" id="my-username" class="form-control input-border" />
+                            <b id="error" class="text-danger"></b>
                             <br/>
-                            <button id="guess-btn" class="center-block buttons btn-lg">
-                                guess
+                            <button id="username-btn" class="center-block buttons btn-lg">
+                                continue
                             </button>
-                        </span>
+                        </h4>
+                        <h4 class="text-center hide" id="start">
+                            Start guessing <span id="new-username"></span>
+                            <br/><br/>
+                            Guesses Remaining - <span id="guess-count"></span>
+                            <br/><br/>
+                            Guessed letters
+                            <br/>
+                            <span id="guesses"></span>
+                            <br/><br/>
+                            <span id="result">
+                                <input maxlength="1" type="text" id="guess" class="form-control input-border" placeholder="You can guess 1 letter at a time" />
+                                <br/>
+                                <button id="guess-btn" class="center-block buttons btn-lg">
+                                    guess
+                                </button>
+                            </span>
+                        </h4>
+                        <br/>
+                    </div>
+                {% else %}
+                    <h4 class="text-center text-danger">
+                        Sorry, we encountered a problem while getting you
+                        word to guess
                     </h4>
-                    <br/>
-                </div>
+                {% endif %}
             </div>
         </div>
 
