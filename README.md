@@ -2,6 +2,8 @@
 By Alex Harding
 Created 11/14/18
 
+<h2>Setup</h2>
+
 Please copy and paste these commands in your terminal to get the app up and running.
 
 TIP: Create a virtual environment before proceeding. Visit http://flask.pocoo.org/docs/0.12/installation/ for instructions 
@@ -15,6 +17,7 @@ You will then need to create a database table
  To do so, use an interactive python shell where you have this app loaded and type
  1. from app import db
  2. db.create_all()
+ 
 This will create your new database
 
  That's it! now type: "flask run" in your commandline to start the application and go to http://127.0.0.1:5000/ in your browser to view the app
@@ -24,7 +27,7 @@ This will create your new database
  
  
  
- <h4>Tests</h4>
+ <h2>Tests</h2>
  The tests are written using unittest 
  
  to run the tests from the root directory use: python tests.py
