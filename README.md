@@ -15,7 +15,7 @@ TIP: Create a virtual environment before proceeding. Visit http://flask.pocoo.or
 
 You will then need to create a database table
  
- To do so, use an interactive python shell where you have this app loaded and type
+ To do so, use an interactive python shell where you have this app loaded and type:
  1. from app import db
  2. db.create_all()
  
