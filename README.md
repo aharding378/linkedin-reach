@@ -18,3 +18,15 @@ You will then need to create a database table
 This will create your new database
 
  That's it! now type: "flask run" in your commandline to start the application and go to http://127.0.0.1:5000/ in your browser to view the app
+ 
+ This is what the app should look like:
+ <img src="https://s3-us-west-1.amazonaws.com/my-media/images/Screen+Shot+2018-11-16+at+10.48.55+AM.png" />
+ 
+ 
+ 
+ <h4>Tests</h4>
+ The tests are written using unittest 
+ 
+ to run the tests from the root directory use: python tests.py
+ 
+ 
